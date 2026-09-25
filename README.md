@@ -5,6 +5,11 @@
 
 DinoDock is a dinosaur-themed mini player for Windows. Pick **Google**, **YouTube**, or **Hulu** and it opens in a small window that stays on top of everything else, so you can watch or browse while you work in other apps.
 
+<img width="523" height="412" alt="launcher" src="https://github.com/user-attachments/assets/6b67e03c-cd98-4ca9-b0fd-25000eeb0259" />
+<img width="1873" height="1010" alt="usecase" src="https://github.com/user-attachments/assets/a92625de-ef03-48fd-80e9-6aec85d3f2ef" />
+
+
+
 ## Features
 
 - Launcher with a 3D Y2K-style dinosaur theme
