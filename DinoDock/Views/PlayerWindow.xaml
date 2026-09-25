@@ -1,0 +1,144 @@
+<Window x:Class="DinoDock.Views.PlayerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding WindowTitle}"
+        Icon="/Assets/AppIcon.ico"
+        Width="600" Height="400"
+        MinWidth="350" MinHeight="220"
+        WindowStartupLocation="Manual"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        Background="{StaticResource ChromeBackgroundBrush}"
+        Foreground="{StaticResource TextPrimaryBrush}"
+        FontFamily="{StaticResource UiFont}"
+        UseLayoutRounding="True">
+
+    <WindowChrome.WindowChrome>
+        <!-- CaptionHeight = the control bar, so it drags the window. -->
+        <WindowChrome CaptionHeight="36" ResizeBorderThickness="6" GlassFrameThickness="0"
+                      CornerRadius="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Control+Shift" Key="P" Command="{Binding TogglePinCommand}" />
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
+        <KeyBinding Modifiers="Alt" Key="Home" Command="{Binding HomeCommand}" />
+    </Window.InputBindings>
+
+    <Border x:Name="RootBorder" BorderBrush="{StaticResource StrokeBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36" />
+                <RowDefinition Height="2" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- ===== Control bar ===== -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,0,0">
+                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE72B;" Command="{Binding BackCommand}"
+                            ToolTip="Back" AutomationProperties.Name="Back" />
+                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE72A;" Command="{Binding ForwardCommand}"
+                            ToolTip="Forward" AutomationProperties.Name="Forward" />
+                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE72C;" Command="{Binding RefreshCommand}"
+                            ToolTip="Refresh (F5)" AutomationProperties.Name="Refresh" />
+                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE80F;" Command="{Binding HomeCommand}"
+                            ToolTip="Home - back to this app's start page" AutomationProperties.Name="Home" />
+                </StackPanel>
+
+                <!-- Title (not hit-testable, so the whole middle of the bar drags the window) -->
+                <DockPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Margin="8,0" IsHitTestVisible="False" LastChildFill="True">
+                    <Ellipse DockPanel.Dock="Left" Width="7" Height="7" Fill="{Binding CurrentApp.AccentBrush}"
+                             VerticalAlignment="Center" Margin="0,1,7,0" />
+                    <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" Foreground="{StaticResource TextSecondaryBrush}" />
+                </DockPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE71D;" Command="{Binding ShowLauncherCommand}"
+                            ToolTip="Back to launcher" AutomationProperties.Name="Back to launcher" />
+                    <ToggleButton Style="{StaticResource PinButtonStyle}" Content="&#xE718;" Margin="2,0,0,0"
+                                  IsChecked="{Binding IsPinned, Mode=TwoWay}"
+                                  ToolTip="{Binding PinToolTip}" AutomationProperties.Name="Always on top" />
+                    <Button Style="{StaticResource IconButtonStyle}" Content="&#xE921;" FontSize="10" Margin="2,0,0,0"
+                            Click="OnMinimizeClick" ToolTip="Minimize" AutomationProperties.Name="Minimize" />
+                    <Button Style="{StaticResource CloseButtonStyle}" Content="&#xE8BB;" FontSize="10" Margin="2,0,0,0"
+                            Click="OnCloseClick" ToolTip="Close" AutomationProperties.Name="Close" />
+                </StackPanel>
+            </Grid>
+
+            <!-- ===== Thin loading indicator ===== -->
+            <Border Grid.Row="1" x:Name="LoadingBar" ClipToBounds="True"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <LinearGradientBrush.RelativeTransform>
+                            <TranslateTransform X="-0.7" />
+                        </LinearGradientBrush.RelativeTransform>
+                        <GradientStop Color="Transparent" Offset="0.3" />
+                        <GradientStop Color="{StaticResource AccentColor}" Offset="0.5" />
+                        <GradientStop Color="Transparent" Offset="0.7" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <!-- The animation only runs while a page is loading. A "Forever" animation that keeps
+                     running while hidden makes WPF redraw 60 times a second and burns CPU. -->
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard x:Name="LoadingStoryboard">
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetProperty="(Border.Background).(Brush.RelativeTransform).(TranslateTransform.X)"
+                                                             From="-0.7" To="0.7" Duration="0:0:1.1" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <RemoveStoryboard BeginStoryboardName="LoadingStoryboard" />
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+
+            <!-- ===== Browser area =====
+                 Inset slightly so the window's resize edges aren't covered by the browser
+                 (the WebView2 child window would otherwise swallow the mouse there). -->
+            <Grid Grid.Row="2" Margin="5,0,5,5">
+                <Border CornerRadius="6" Background="{StaticResource WindowBackgroundBrush}" />
+
+                <!-- WebView2 is created in code-behind so it can be rebuilt if the browser process dies. -->
+                <Grid x:Name="BrowserHost"
+                      Visibility="{Binding ShowBrowser, Converter={StaticResource BoolToVisibility}}" />
+
+                <!-- Error / runtime-missing panel -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False"
+                              Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="380" Margin="20,12">
+                        <TextBlock Text="&#xE783;" FontFamily="{StaticResource IconFont}" FontSize="26"
+                                   Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding ErrorTitle}" FontSize="15" FontWeight="SemiBold" Margin="0,10,0,6"
+                                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="12.5" Foreground="{StaticResource TextSecondaryBrush}"
+                                   TextAlignment="Center" TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                            <Button Style="{StaticResource PrimaryButtonStyle}" Content="Get WebView2 Runtime" Margin="0,0,8,0"
+                                    Command="{Binding InstallRuntimeCommand}"
+                                    Visibility="{Binding IsRuntimeMissing, Converter={StaticResource BoolToVisibility}}" />
+                            <Button Style="{StaticResource SecondaryButtonStyle}" Content="Try again" Command="{Binding RetryCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

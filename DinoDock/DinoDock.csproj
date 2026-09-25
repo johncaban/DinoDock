@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- WinForms is only used for the system tray icon (NotifyIcon). -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>DinoDock</RootNamespace>
+    <AssemblyName>DinoDock</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <Product>DinoDock</Product>
+  </PropertyGroup>
+
+  <!-- Keep WinForms/Drawing out of the global usings so they don't clash with WPF types
+       (Application, Button, Color, ...). Where they're needed they are fully qualified. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\AppIcon.ico" />
+    <Resource Include="Assets\AppLogo.png" />
+    <Resource Include="Assets\LauncherBackground.jpg" />
+    <Resource Include="Assets\DinoDockTitle.png" />
+    <!-- Optional replacement icons (google.png, hulu.png, youtube.png) are read from disk at runtime. -->
+    <None Include="Assets\Icons\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
